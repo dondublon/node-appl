@@ -1,46 +1,40 @@
 import "dotenv/config"
 import logger from "./logger.js"
-logger.debug("HELLO WORLD")
-const a: number = 10
-// logger.error("ERROR " + a)
-
 function getParameters(): number[] {
-    const firstNumberStr = process.argv[2]
-    logger.debug("First number is " + firstNumberStr)
-    if (!firstNumberStr)
-        throw Error("First number is missing")
-    const firstNumber = parseInt(firstNumberStr)
-    if (isNaN(firstNumber))
-        throw Error("First number is not a number")
-    const secondNumberStr = process.argv[3]
-    logger.debug("Second number is " + secondNumberStr)
-    if (!secondNumberStr)
-        throw Error("Second number is missing")
-    const secondNumber = parseInt(secondNumberStr)
-    if (isNaN(secondNumber))
-        throw Error("Second number is not a number")
+    const firstNumberStr = process.argv[2];
+    const firstNumber = processArgument(firstNumberStr, "first")
+    logger.debug(`firstNumber is ${firstNumber}`)
+    const secondNumberStr = process.argv[3];
+    const secondNumber = processArgument(secondNumberStr, "second")
+    logger.debug(`secondNumber is ${secondNumber}`)
+   
     return [firstNumber, secondNumber]
-
-}
-
-function sum(firstNumber: number, secondNumber: number) {
+} 
+function sum(firstNumber: number, secondNumber: number): number {
+    logger.debug(`function sum arguments : ${firstNumber} and ${secondNumber}`)
     return firstNumber + secondNumber
-
 }
-
 function main() {
-    try {
-        const [firstNumber, secondNumber] = getParameters()
-        const result = sum(firstNumber, secondNumber)
-        console.log(result)
-    }
+   try {
+     const numbers: number[] = getParameters()
+     logger.debug(`parameters of main are ${numbers}`)
+     const result: number = sum(numbers[0] || 0, numbers[1] || 0)
+     console.log(`sum of ${numbers[0]} and ${numbers[1]} is ${result}`)
+ }
     catch (error) {
-        if (error instanceof Error)
-            logger.error(error.message)
-        else
-            logger.error("Unknown error")
-
-    }
+        const errorMessage = error as Error
+        logger.error(errorMessage.message)
+   }
 }
-
-main()
+function processArgument(param: string | undefined, seqNum: string): number {
+    if(!param) {
+        throw Error(seqNum +  " number must be provided in arguments")
+    }
+    const num = Number(param);
+    
+    if (isNaN(num)) {
+        throw Error(seqNum + " argument must be number")
+    }
+    return num
+}
+main();
